@@ -1,6 +1,8 @@
 package com.richbank.userfront.controller;
 
 import com.richbank.userfront.domain.User;
+import com.richbank.userfront.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -12,6 +14,9 @@ import java.util.Set;
 
 @Controller
 public class HomeController {
+
+    @Autowired
+    private UserService userService;
 
     @RequestMapping("/")
     public String home() {
@@ -33,9 +38,9 @@ public class HomeController {
     }
 
     @RequestMapping(value = "/signup", method = RequestMethod.POST)
-    public void signupPost(@ModelAttribute("user") User user, Model model) {
+    public String signupPost(@ModelAttribute("user") User user, Model model) {
 
-     /*   if (userService.checkUserExists(user.getUsername(), user.getEmail())) {
+        if (userService.checkUserExists(user.getUsername(), user.getEmail())) {
 
             if (userService.checkEmailExists(user.getEmail())) {
                 model.addAttribute("emailExists", true);
@@ -48,13 +53,15 @@ public class HomeController {
             return "signup";
         } else {
 
-            Set<UserRole> userRoles = new HashSet<>();
+          /*  Set<UserRole> userRoles = new HashSet<>();
             userRoles.add(new UserRole(user, roleDao.findByName("USER")));
             userService.createUser(user, userRoles);
 
+           */
+
+            userService.save(user);
+
             return "redirect:/";
         }
-
-      */
     }
 }
