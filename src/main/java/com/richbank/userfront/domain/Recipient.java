@@ -1,6 +1,14 @@
 package com.richbank.userfront.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import javax.persistence.*;
+
+@Entity
 public class Recipient {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String name;
     private String email;
@@ -8,6 +16,9 @@ public class Recipient {
     private String accountNumber;
     private String description;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @JsonIgnore
     private User user;
 
     public Long getId() {
