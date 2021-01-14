@@ -1,6 +1,8 @@
 package com.richbank.userfront.controller;
 
+import com.richbank.userfront.dao.RoleDao;
 import com.richbank.userfront.domain.User;
+import com.richbank.userfront.domain.security.UserRole;
 import com.richbank.userfront.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -17,6 +19,9 @@ public class HomeController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private RoleDao roleDao;
 
     @RequestMapping("/")
     public String home() {
@@ -53,13 +58,9 @@ public class HomeController {
             return "signup";
         } else {
 
-          /*  Set<UserRole> userRoles = new HashSet<>();
-            userRoles.add(new UserRole(user, roleDao.findByName("USER")));
+            Set<UserRole> userRoles = new HashSet<>();
+            userRoles.add(new UserRole(user, roleDao.findByName("ROLE_USER")));
             userService.createUser(user, userRoles);
-
-           */
-
-            userService.save(user);
 
             return "redirect:/";
         }

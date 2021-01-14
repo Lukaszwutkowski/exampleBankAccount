@@ -1,8 +1,10 @@
 package com.richbank.userfront.service;
 
 import com.richbank.userfront.domain.User;
+import com.richbank.userfront.domain.security.UserRole;
 
 import java.util.List;
+import java.util.Set;
 
 public interface UserService {
 
@@ -18,7 +20,7 @@ public interface UserService {
 
     void save (User user);
 
-   // User createUser(User user, Set<UserRole> userRoles);
+    User createUser(User user, Set<UserRole> userRoles);
 
     User saveUser (User user);
 

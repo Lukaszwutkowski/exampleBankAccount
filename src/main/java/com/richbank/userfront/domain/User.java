@@ -1,12 +1,19 @@
 package com.richbank.userfront.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.richbank.userfront.domain.security.Authority;
+import com.richbank.userfront.domain.security.UserRole;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
-public class User {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -36,6 +43,18 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Recipient> recipientList;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonIgnore
+    private Set<UserRole> userRoles = new HashSet<>();
+
+    public Set<UserRole> getUserRoles() {
+        return userRoles;
+    }
+
+    public void setUserRoles(Set<UserRole> userRoles) {
+        this.userRoles = userRoles;
+    }
+
     public Long getUserId() {
         return userId;
     }
@@ -46,10 +65,6 @@ public class User {
 
     public String getUsername() {
         return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 
     public String getPassword() {
@@ -90,10 +105,6 @@ public class User {
 
     public void setPhone(String phone) {
         this.phone = phone;
-    }
-
-    public boolean isEnabled() {
-        return enabled;
     }
 
     public void setEnabled(boolean enabled) {
@@ -147,6 +158,45 @@ public class User {
                 ", savingsAccount=" + savingsAccount +
                 ", appointmentList=" + appointmentList +
                 ", recipientList=" + recipientList +
+                ", userRoles=" + userRoles +
                 '}';
     }
+
+    @Override
+    public boolean isAccountNonExpired() {
+
+        // TODO Auto-generated method stub
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        // TODO Auto-generated method stub
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+
+        // TODO Auto-generated method stub
+        return true;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        Set<GrantedAuthority> authorities = new HashSet<>();
+        userRoles.forEach(ur -> authorities.add(new Authority(ur.getRole().getName())));
+        return authorities;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+
 }
