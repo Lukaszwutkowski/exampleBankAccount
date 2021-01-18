@@ -1,9 +1,8 @@
 package com.richbank.userfront.controller;
 
-import com.richbank.userfront.domain.PrimaryAccount;
-import com.richbank.userfront.domain.SavingsAccount;
-import com.richbank.userfront.domain.User;
+import com.richbank.userfront.domain.*;
 import com.richbank.userfront.service.AccountService;
+import com.richbank.userfront.service.TransactionService;
 import com.richbank.userfront.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -13,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.security.Principal;
+import java.util.List;
 
 @Controller
 @RequestMapping("/account")
@@ -24,22 +24,31 @@ public class AccountController {
     @Autowired
     private AccountService accountService;
 
+    @Autowired
+    private TransactionService transactionService;
+
     @RequestMapping("/primaryAccount")
     public String primaryAccount(Model model, Principal principal) {
+        List<PrimaryTransaction> primaryTransactionList = transactionService.findPrimaryTransactionList(principal.getName());
+
         User user = userService.findByUsername(principal.getName());
         PrimaryAccount primaryAccount = user.getPrimaryAccount();
 
         model.addAttribute("primaryAccount", primaryAccount);
+        model.addAttribute("primaryTransactionList", primaryTransactionList);
 
         return "primaryAccount";
     }
 
     @RequestMapping("/savingsAccount")
     public String savingsAccount(Model model, Principal principal) {
+        List<SavingsTransaction> savingsTransactionList = transactionService.findSavingsTransactionList(principal.getName());
+
         User user = userService.findByUsername(principal.getName());
         SavingsAccount savingsAccount = user.getSavingsAccount();
 
         model.addAttribute("savingsAccount", savingsAccount);
+        model.addAttribute("savingsTransactionList", savingsTransactionList);
 
         return "savingsAccount";
     }
