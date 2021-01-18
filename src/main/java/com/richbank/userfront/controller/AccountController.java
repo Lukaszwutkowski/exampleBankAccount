@@ -1,6 +1,7 @@
 package com.richbank.userfront.controller;
 
 import com.richbank.userfront.domain.PrimaryAccount;
+import com.richbank.userfront.domain.SavingsAccount;
 import com.richbank.userfront.domain.User;
 import com.richbank.userfront.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,12 @@ public class AccountController {
     }
 
     @RequestMapping("/savingsAccount")
-    public String savingsAccount() {
+    public String savingsAccount(Model model, Principal principal) {
+        User user = userService.findByUsername(principal.getName());
+        SavingsAccount savingsAccount = user.getSavingsAccount();
+
+        model.addAttribute("savingsAccount", savingsAccount);
+
         return "savingsAccount";
     }
 }
