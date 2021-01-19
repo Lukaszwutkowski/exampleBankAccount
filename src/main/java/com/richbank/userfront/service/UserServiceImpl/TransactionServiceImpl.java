@@ -1,10 +1,7 @@
 package com.richbank.userfront.service.UserServiceImpl;
 
 
-import com.richbank.userfront.dao.PrimaryAccountDao;
-import com.richbank.userfront.dao.PrimaryTransactionDao;
-import com.richbank.userfront.dao.SavingsAccountDao;
-import com.richbank.userfront.dao.SavingsTransactionDao;
+import com.richbank.userfront.dao.*;
 import com.richbank.userfront.domain.*;
 import com.richbank.userfront.service.TransactionService;
 import com.richbank.userfront.service.UserService;
@@ -15,6 +12,7 @@ import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TransactionServiceImpl implements TransactionService {
@@ -33,6 +31,9 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Autowired
     private SavingsAccountDao savingsAccountDao;
+
+    @Autowired
+    private RecipientDao recipientDao;
 
     @Override
     public List<PrimaryTransaction> findPrimaryTransactionList(String username) {
@@ -97,5 +98,30 @@ public class TransactionServiceImpl implements TransactionService {
         } else {
             throw new Exception("Invalid Transfer");
         }
+    }
+
+    @Override
+    public List<Recipient> findRecipientList(Principal principal) {
+        String username = principal.getName();
+        List<Recipient> recipientList = recipientDao.findAll().stream()
+                .filter(recipient -> username.equals(recipient.getUser().getUsername()))
+                .collect(Collectors.toList());
+
+        return recipientList;
+    }
+
+    @Override
+    public Recipient saveRecipient(Recipient recipient) {
+        return recipientDao.save(recipient);
+    }
+
+    @Override
+    public Recipient findRecipientByName(String recipientName) {
+        return recipientDao.findByName(recipientName);
+    }
+
+    @Override
+    public void deleteRecipientByName(String recipientName) {
+        recipientDao.deleteByName(recipientName);
     }
 }

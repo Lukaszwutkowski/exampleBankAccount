@@ -1,9 +1,6 @@
 package com.richbank.userfront.service;
 
-import com.richbank.userfront.domain.PrimaryAccount;
-import com.richbank.userfront.domain.PrimaryTransaction;
-import com.richbank.userfront.domain.SavingsAccount;
-import com.richbank.userfront.domain.SavingsTransaction;
+import com.richbank.userfront.domain.*;
 
 import java.security.Principal;
 import java.util.List;
@@ -23,4 +20,12 @@ public interface TransactionService {
     void saveSavingsWithdrawTransaction(SavingsTransaction savingsTransaction);
 
     void betweenAccountsTransfer(String transferFrom, String transferTo, String amount, PrimaryAccount primaryAccount, SavingsAccount savingsAccount, Principal principal) throws Exception;
+
+    List<Recipient> findRecipientList(Principal principal);
+
+    Recipient saveRecipient(Recipient recipient);
+
+    Recipient findRecipientByName(String recipientName);
+
+    void deleteRecipientByName(String recipientName);
 }
