@@ -92,7 +92,7 @@ public class AccountServiceImpl implements AccountService {
             Date date = new Date();
 
             PrimaryTransaction primaryTransaction = new PrimaryTransaction(date, "Withdraw from Primary Account", "Account", "Finished", amount, primaryAccount.getAccountBalance(), primaryAccount);
-
+            transactionService.savePrimaryWithdrawTransaction(primaryTransaction);
 
         } else if (accountType.equalsIgnoreCase("Savings")) {
             SavingsAccount savingsAccount = user.getSavingsAccount();
@@ -102,6 +102,8 @@ public class AccountServiceImpl implements AccountService {
             Date date = new Date();
 
             SavingsTransaction savingsTransaction = new SavingsTransaction(date, "Withdraw from Savings Account", "Account", "Finished", amount, savingsAccount.getAccountBalance(), savingsAccount);
+            transactionService.saveSavingsWithdrawTransaction(savingsTransaction);
+
         }
     }
 

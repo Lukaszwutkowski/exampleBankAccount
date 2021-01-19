@@ -14,4 +14,8 @@ public interface TransactionService {
     void savePrimaryDepositTransaction(PrimaryTransaction primaryTransaction);
 
     void saveSavingsDepositTransaction(SavingsTransaction savingsTransaction);
+
+    void savePrimaryWithdrawTransaction(PrimaryTransaction primaryTransaction);
+
+    void saveSavingsWithdrawTransaction(SavingsTransaction savingsTransaction);
 }
