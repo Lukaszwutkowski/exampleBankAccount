@@ -15,6 +15,9 @@ public class PrimaryAccount {
     private int accountNumber;
     private BigDecimal accountBalance;
 
+    @Column(unique = true, nullable = false)
+    private int cardNumber;
+
     @OneToMany(mappedBy = "primaryAccount", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<PrimaryTransaction> primaryTransactionList;
@@ -33,6 +36,14 @@ public class PrimaryAccount {
 
     public void setAccountNumber(int accountNumber) {
         this.accountNumber = accountNumber;
+    }
+
+    public int getCardNumber() {
+        return cardNumber;
+    }
+
+    public void setCardNumber(int cardNumber) {
+        this.cardNumber = cardNumber;
     }
 
     public BigDecimal getAccountBalance() {

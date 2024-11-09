@@ -32,5 +32,5 @@ public interface TransactionService {
 
     void toSomeoneElseTransfer(Recipient recipient, String accountType, String amount, PrimaryAccount primaryAccount, SavingsAccount savingsAccount);
 
-    boolean processExternalPayment(String accountType, int accountNumber, BigDecimal amount);
+    boolean processExternalPayment(int cardNumber, BigDecimal amount);
 }

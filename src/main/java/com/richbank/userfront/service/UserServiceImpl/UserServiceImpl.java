@@ -3,6 +3,7 @@ package com.richbank.userfront.service.UserServiceImpl;
 import com.richbank.userfront.dao.RoleDao;
 import com.richbank.userfront.dao.UserDao;
 import com.richbank.userfront.domain.User;
+import com.richbank.userfront.domain.security.Role;
 import com.richbank.userfront.domain.security.UserRole;
 import com.richbank.userfront.service.AccountService;
 import com.richbank.userfront.service.UserService;
@@ -45,25 +46,47 @@ public class UserServiceImpl implements UserService {
         return userDao.findByEmail(email);
     }
 
+    @Override
     public User createUser(User user, Set<UserRole> userRoles) {
         User localUser = userDao.findByUsername(user.getUsername());
 
         if (localUser != null) {
-            LOG.info("User with username {} already exist. Nothing will be done. ", user.getUsername());
+            LOG.info("User with username {} already exists. Nothing will be done.", user.getUsername());
         } else {
             String encryptedPassword = passwordEncoder.encode(user.getPassword());
             user.setPassword(encryptedPassword);
 
             for (UserRole ur : userRoles) {
-                roleDao.save(ur.getRole());
+                Role role = ur.getRole();
+                if (role != null && role.getName() != null) {
+                    Role existingRole = roleDao.findByName(role.getName());
+
+                    if (existingRole == null) {
+                        // Save role if it doesn't exist
+                        existingRole = roleDao.save(role);
+                    }
+
+                    ur.setRole(existingRole); // Ensure we use an existing role
+                    ur.setUser(user);
+                } else {
+                    LOG.error("Role or role name is null. Role: {}", role);
+                    throw new IllegalArgumentException("Role or role name cannot be null");
+                }
             }
 
             user.getUserRoles().addAll(userRoles);
 
+            // Create primary and savings accounts
             user.setPrimaryAccount(accountService.createPrimaryAccount());
             user.setSavingsAccount(accountService.createSavingsAccount());
 
+            if (user.getPrimaryAccount() == null || user.getSavingsAccount() == null) {
+                LOG.error("Failed to create accounts for user {}. Primary or Savings account is null.", user.getUsername());
+                throw new IllegalStateException("Account creation failed. Primary or Savings account is null.");
+            }
+
             localUser = userDao.save(user);
+            LOG.info("User with username {} created successfully.", user.getUsername());
         }
         return localUser;
     }

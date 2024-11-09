@@ -5,11 +5,14 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@Table(name = "roles")  // Renamed to avoid conflicts in certain databases with reserved keywords
 public class Role {
 
     @Id
+    @Column(name = "role_id", nullable = false, unique = true)
     private int roleId;
 
+    @Column(name = "name", nullable = false, unique = true)
     private String name;
 
     @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -17,6 +20,12 @@ public class Role {
 
     public Role() {}
 
+    public Role(String name, int roleId) {
+        this.name = name;
+        this.roleId = roleId;
+    }
+
+    // Getters and Setters
     public int getRoleId() {
         return roleId;
     }

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.Date;
+import java.util.Random;
 
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -33,8 +34,9 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public PrimaryAccount createPrimaryAccount() {
         PrimaryAccount primaryAccount = new PrimaryAccount();
-        primaryAccount.setAccountBalance(new BigDecimal(0.0));
+        primaryAccount.setAccountBalance(BigDecimal.ZERO);
         primaryAccount.setAccountNumber(accountGen());
+        primaryAccount.setCardNumber(generateUniqueCardNumber());
 
         primaryAccountDao.save(primaryAccount);
 
@@ -45,12 +47,10 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public SavingsAccount createSavingsAccount() {
         SavingsAccount savingsAccount = new SavingsAccount();
-        savingsAccount.setAccountBalance(new BigDecimal(0.0));
+        savingsAccount.setAccountBalance(BigDecimal.ZERO);
         savingsAccount.setAccountNumber(accountGen());
 
-        savingsAccountDao.save(savingsAccount);
-
-        return savingsAccountDao.findByAccountNumber(savingsAccount.getAccountNumber());
+        return savingsAccountDao.save(savingsAccount);
     }
 
     @Override
@@ -110,4 +110,22 @@ public class AccountServiceImpl implements AccountService {
     private int accountGen() {
         return ++nextAccountNumber;
     }
+
+    /**
+     * Generates a unique 10-digit card number.
+     *
+     * @return a unique card number for the account
+     */
+    private int generateUniqueCardNumber() {
+        Random random = new Random();
+        int cardNumber;
+
+        // Ensure the card number is unique by checking in the database
+        do {
+            cardNumber = 100000000 + random.nextInt(900000000); // Generate a 10-digit number
+        } while (primaryAccountDao.findByCardNumber(cardNumber) != null);
+
+        return cardNumber;
+    }
+
 }

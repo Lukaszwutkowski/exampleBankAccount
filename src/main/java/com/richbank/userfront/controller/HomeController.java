@@ -4,6 +4,7 @@ import com.richbank.userfront.dao.RoleDao;
 import com.richbank.userfront.domain.PrimaryAccount;
 import com.richbank.userfront.domain.SavingsAccount;
 import com.richbank.userfront.domain.User;
+import com.richbank.userfront.domain.security.Role;
 import com.richbank.userfront.domain.security.UserRole;
 import com.richbank.userfront.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,17 +58,26 @@ public class HomeController {
             if (userService.checkUsernameExists(user.getUsername())) {
                 model.addAttribute("usernameExists", true);
             }
-
             return "signup";
-        } else {
 
+        } else {
             Set<UserRole> userRoles = new HashSet<>();
-            userRoles.add(new UserRole(user, roleDao.findByName("ROLE_USER")));
+
+            // Ensure the "ROLE_USER" role exists in the database
+            Role userRole = roleDao.findByName("ROLE_USER");
+            if (userRole == null) {
+                model.addAttribute("roleError", "Required role 'ROLE_USER' does not exist.");
+                return "signup"; // Return to signup page with error message
+            }
+
+            // Add the role to the user
+            userRoles.add(new UserRole(user, userRole));
             userService.createUser(user, userRoles);
 
             return "redirect:/";
         }
     }
+
 
     @RequestMapping("/userFront")
     public String userFront(Principal principal, Model model) {
