@@ -2,6 +2,7 @@ package com.richbank.userfront.service;
 
 import com.richbank.userfront.domain.*;
 
+import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.List;
 
@@ -30,4 +31,6 @@ public interface TransactionService {
     void deleteRecipientByName(String recipientName);
 
     void toSomeoneElseTransfer(Recipient recipient, String accountType, String amount, PrimaryAccount primaryAccount, SavingsAccount savingsAccount);
+
+    boolean processExternalPayment(String accountType, int accountNumber, BigDecimal amount);
 }

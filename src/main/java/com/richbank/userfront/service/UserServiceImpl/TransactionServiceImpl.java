@@ -146,4 +146,35 @@ public class TransactionServiceImpl implements TransactionService {
             savingsTransactionDao.save(savingsTransaction);
         }
     }
+
+    @Override
+    public boolean processExternalPayment(String accountType, int accountNumber, BigDecimal amount) {
+        if (accountType.equalsIgnoreCase("Primary")) {
+            PrimaryAccount primaryAccount = primaryAccountDao.findByAccountNumber(accountNumber);
+
+            if (primaryAccount != null && primaryAccount.getAccountBalance().compareTo(amount) >= 0) {
+                primaryAccount.setAccountBalance(primaryAccount.getAccountBalance().subtract(amount));
+                primaryAccountDao.save(primaryAccount);
+
+                Date date = new Date();
+                PrimaryTransaction transaction = new PrimaryTransaction(date, "External payment", "Payment", "Finished", amount.doubleValue(), primaryAccount.getAccountBalance(), primaryAccount);
+                primaryTransactionDao.save(transaction);
+                return true;
+            }
+        } else if (accountType.equalsIgnoreCase("Savings")) {
+            SavingsAccount savingsAccount = savingsAccountDao.findByAccountNumber(accountNumber);
+
+            if (savingsAccount != null && savingsAccount.getAccountBalance().compareTo(amount) >= 0) {
+                savingsAccount.setAccountBalance(savingsAccount.getAccountBalance().subtract(amount));
+                savingsAccountDao.save(savingsAccount);
+
+                Date date = new Date();
+                SavingsTransaction transaction = new SavingsTransaction(date, "External payment", "Payment", "Finished", amount.doubleValue(), savingsAccount.getAccountBalance(), savingsAccount);
+                savingsTransactionDao.save(transaction);
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
