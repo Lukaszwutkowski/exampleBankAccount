@@ -41,7 +41,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/contact/**",
             "/error/**/*",
             "/console/**",
-            "/signup"
+            "/signup",
+            "/api/**",
+            "/auth/pin"  // Allow unauthenticated access to PIN authentication
+
     };
 
     @Override

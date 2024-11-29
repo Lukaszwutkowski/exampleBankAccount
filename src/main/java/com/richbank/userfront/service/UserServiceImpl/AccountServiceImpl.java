@@ -31,12 +31,40 @@ public class AccountServiceImpl implements AccountService {
     @Autowired
     private TransactionService transactionService;
 
+    /**
+     * Validates the provided card number and PIN by checking the database.
+     *
+     * @param cardNumber the card number provided by the user
+     * @param pin        the PIN provided by the user
+     * @return true if the card number and PIN match a record in the database, false otherwise
+     */
+    @Override
+    public boolean validateCardNumberAndPin(int cardNumber, int pin) {
+        // Ensure inputs are valid
+        if (cardNumber <= 0 || pin <= 0) { // Validate that the values are greater than zero
+            return false;
+        }
+
+        // Fetch account from the database based on the card number
+        PrimaryAccount account = primaryAccountDao.findByCardNumber(cardNumber);
+
+        // Validate if account exists and the PIN matches
+        if (account != null) {
+            int storedPin = account.getPin(); // Assuming `PrimaryAccount` has a `pin` field
+            return storedPin == pin; // Compare stored PIN with the provided one
+        }
+
+        return false; // Return false if no account found or validation fails
+    }
+
     @Override
     public PrimaryAccount createPrimaryAccount() {
         PrimaryAccount primaryAccount = new PrimaryAccount();
         primaryAccount.setAccountBalance(BigDecimal.ZERO);
         primaryAccount.setAccountNumber(accountGen());
         primaryAccount.setCardNumber(generateUniqueCardNumber());
+        primaryAccount.setPin(generateRandomPin());
+
 
         primaryAccountDao.save(primaryAccount);
 
@@ -127,5 +155,17 @@ public class AccountServiceImpl implements AccountService {
 
         return cardNumber;
     }
+
+    /**
+     * Generates a random 4-digit numeric PIN.
+     *
+     * @return a randomly generated 4-digit PIN as an integer
+     */
+    private int generateRandomPin() {
+        Random random = new Random();
+        return 1000 + random.nextInt(9000); // Generates a number between 1000 and 9999
+    }
+
+
 
 }

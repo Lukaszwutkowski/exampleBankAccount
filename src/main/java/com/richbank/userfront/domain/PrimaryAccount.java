@@ -18,6 +18,9 @@ public class PrimaryAccount {
     @Column(unique = true, nullable = false)
     private int cardNumber;
 
+    @Column(nullable = false)
+    private int pin;
+
     @OneToMany(mappedBy = "primaryAccount", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<PrimaryTransaction> primaryTransactionList;
@@ -36,6 +39,14 @@ public class PrimaryAccount {
 
     public void setAccountNumber(int accountNumber) {
         this.accountNumber = accountNumber;
+    }
+
+    public int getPin() {
+        return pin;
+    }
+
+    public void setPin(int pin) {
+        this.pin = pin;
     }
 
     public int getCardNumber() {
