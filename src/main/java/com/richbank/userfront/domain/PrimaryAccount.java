@@ -12,6 +12,7 @@ public class PrimaryAccount {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    @Column(unique = true, nullable = false)
     private int accountNumber;
     private BigDecimal accountBalance;
 

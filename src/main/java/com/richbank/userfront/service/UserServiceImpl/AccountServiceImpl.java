@@ -2,22 +2,28 @@ package com.richbank.userfront.service.UserServiceImpl;
 
 import com.richbank.userfront.dao.PrimaryAccountDao;
 import com.richbank.userfront.dao.SavingsAccountDao;
+import com.richbank.userfront.dao.SequenceGeneratorDao;
 import com.richbank.userfront.domain.*;
 import com.richbank.userfront.service.AccountService;
 import com.richbank.userfront.service.TransactionService;
 import com.richbank.userfront.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.Date;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class AccountServiceImpl implements AccountService {
 
-    private static int nextAccountNumber = 11442264;
+    private static final String PRIMARY_ACCOUNT_SEQUENCE_NAME = "PRIMARY_ACCOUNT_SEQUENCE";
+    private static final AtomicInteger nextAccountNumber = new AtomicInteger(11442264);
+
 
     @Autowired
     private PrimaryAccountDao primaryAccountDao;
@@ -30,6 +36,22 @@ public class AccountServiceImpl implements AccountService {
 
     @Autowired
     private TransactionService transactionService;
+
+    @Autowired
+    private SequenceGeneratorDao sequenceGeneratorDao;
+
+    public AccountServiceImpl(SequenceGeneratorDao sequenceGeneratorRepository) {
+        this.sequenceGeneratorDao = sequenceGeneratorRepository;
+
+        SequenceGenerator generator = sequenceGeneratorRepository.findByName(PRIMARY_ACCOUNT_SEQUENCE_NAME);
+        if (generator == null) {
+            generator = new SequenceGenerator();
+            generator.setName(PRIMARY_ACCOUNT_SEQUENCE_NAME);
+            generator.setLastValue(11442264);
+            sequenceGeneratorRepository.save(generator);
+        }
+        nextAccountNumber.set(generator.getLastValue());
+    }
 
     /**
      * Validates the provided card number and PIN by checking the database.
@@ -66,9 +88,9 @@ public class AccountServiceImpl implements AccountService {
         primaryAccount.setPin(generateRandomPin());
 
 
-        primaryAccountDao.save(primaryAccount);
+        PrimaryAccount saved = primaryAccountDao.save(primaryAccount);
 
-        return primaryAccountDao.findByAccountNumber(primaryAccount.getAccountNumber());
+        return saved;
 
     }
 
@@ -135,8 +157,25 @@ public class AccountServiceImpl implements AccountService {
         }
     }
 
-    private int accountGen() {
-        return ++nextAccountNumber;
+    /**
+     * Generates a new account number - increments in memory and saves the updated value in the database.
+     */
+    public int accountGen() {
+        int newNumber = nextAccountNumber.incrementAndGet();
+
+        SequenceGenerator generator = sequenceGeneratorDao.findByName(PRIMARY_ACCOUNT_SEQUENCE_NAME);
+        if (generator == null) {
+            // Jeśli ktoś usunął rekord w międzyczasie – tworzymy go na nowo
+            generator = new SequenceGenerator();
+            generator.setName(PRIMARY_ACCOUNT_SEQUENCE_NAME);
+            generator.setLastValue(newNumber);
+            sequenceGeneratorDao.save(generator);
+        } else {
+            generator.setLastValue(newNumber);
+            sequenceGeneratorDao.save(generator);
+        }
+
+        return newNumber;
     }
 
     /**
@@ -165,7 +204,5 @@ public class AccountServiceImpl implements AccountService {
         Random random = new Random();
         return 1000 + random.nextInt(9000); // Generates a number between 1000 and 9999
     }
-
-
 
 }
